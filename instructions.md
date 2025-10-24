@@ -5,7 +5,7 @@ Esta guía te llevará paso a paso para configurar el proyecto BossBudget API de
 ## 📋 Prerrequisitos
 
 - Node.js 16+ instalado
-- MySQL 8.0+
+- MySQL 8.0+ (opcional)
 - Git
 
 ## 🛠️ Configuración Inicial
