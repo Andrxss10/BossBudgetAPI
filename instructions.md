@@ -17,8 +17,9 @@ Esta guía te llevará paso a paso para configurar el proyecto BossBudget API de
 mkdir -p bossbudget-api/src/{config,models,repositories,services,controllers,middlewares,routes,utils} bossbudget-api/scripts bossbudget-api/uploads
 ```
 # Navegar al proyecto
+```bash
 cd bossbudget-api
-
+```
 ### 2. Inicializar proyecto de node.js
 
 ```bash
@@ -68,26 +69,26 @@ JWT_SECRET=tu_jwt_secret_super_seguro
 
 # CORS
 FRONTEND_URL=http://localhost:3000
+```
 
-
-### CONFIGURACIÓN DE BASE DE DATOS MYSQL EN GITHUB CODESPACE
+## CONFIGURACIÓN DE BASE DE DATOS MYSQL EN GITHUB CODESPACE
 ### Para Entorno Local (MySQL ya instalado)
 Si ya tienes MySQL instalado localmente, solo ejecuta:
 
 ```bash
 npm run setup:db
 ```
-### Para GitHub Codespaces (Instalar MySQL)
+## Para GitHub Codespaces (Instalar MySQL)
 
-## Ejecutar el script de instalación de MySQL
+### Ejecutar el script de instalación de MySQL
 ```bash
 npm run setup:mysql
 ```
-## Luego crear la base de datos (scripts/setup-database.js)
+### Luego crear la base de datos (scripts/setup-database.js)
 ```bash
 npm run setup:db
 ```
-## Script de Instalación de MySQL (setup-codespace.sh)
+### Script de Instalación de MySQL (setup-codespace.sh)
 ```bash
 #!/bin/bash
 echo "🔧 Configurando MySQL en Codespaces..."
