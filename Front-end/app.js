@@ -1,66 +1,66 @@
-// Librerías necesarias para el funcionamiento
-const express = require('express');
-const db = require('./db'); // Conexión a la base de datos local
-const bcrypt = require('bcrypt'); // Encriptado de contraseñas
-const session = require('express-session'); // Manejo de sesiones
-const multer = require('multer'); // Manejo de imagenes en base de datos
+// frontend/app.js
+// SOLO librerías necesarias para el frontend
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Instanciamos app y creamos una constante para el puerto por si cambia
+// Configuración de paths para ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const port = 3000;
+const port = 3001; // Puerto diferente al backend
 
-// Creación de sesión para cada usuario:
-app.use(session({
-    secret: 'PruebaSxcrxtx', // Puedes cambiarla por una más segura
-    resave: false,
-    saveUninitialized: false
-}));
-
-// Configurar EJS
+// ✅ MANTENER - Configurar EJS
 app.set('view engine', 'ejs');
 
-// Permitimos almacenar los datos para que no queden como indefinidos / Middleware para leer datos de formulario
-app.use(express.urlencoded({extended:true}));
+// ✅ MANTENER - Middleware para leer datos de formulario
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Llamamos las rutas de creditos
-const creditos = require('./routes/creditos');
-app.use('/', creditos);
-
-// Llamamos las rutas de otherRoutes
-const isoRoutes = require('./routes/isoRoutes');
-app.use('/', isoRoutes);
-
-// Llamamos las rutas de otherRoutes
-const otherRoutes = require('./routes/otherRoutes');
-app.use('/', otherRoutes);
-
-// Llamamos las rutas de authRoutes
-const authRoutes = require('./routes/authRoutes');
-app.use('/', authRoutes);
-
-// Llamamos las rutas de presupuestoRoutes
-const presupuestoRoutes = require('./routes/presupuestoRoutes');
-app.use('/', presupuestoRoutes);
-
-// Llamamos las rutas de gastosRoutes
-const gastosRoutes = require('./routes/gastosRoutes');
-app.use('/', gastosRoutes);
-
-// Llamamos las rutas de ingresosRoutes
-const ingresosRoutes = require('./routes/ingresosRoutes');
-app.use('/', ingresosRoutes);
-
-// Llamamos las rutas de passRoutes
-const passRoutes = require('./routes/passRoutes');
-app.use('/', passRoutes);
-
-
-// Servir archivos estáticos desde 'public' (CSS, imágenes, JS frontend)
+// ✅ MANTENER - Servir archivos estáticos desde 'public'
 app.use(express.static('public'));
 
+// Configurar carpeta de vistas
+app.set('views', path.join(__dirname, 'views'));
 
-// Localhost:
+// ✅ MANTENER (pero transformadas) - Rutas de vistas
+// Importar rutas del frontend (las crearemos después)
+import creditosRoutes from './routes/creditos.js';
+app.use('/', creditosRoutes);
+
+import isoRoutes from './routes/isoRoutes.js';
+app.use('/', isoRoutes);
+
+import otherRoutes from './routes/otherRoutes.js';
+app.use('/', otherRoutes);
+
+import authRoutes from './routes/authRoutes.js';
+app.use('/', authRoutes);
+
+import presupuestoRoutes from './routes/presupuestoRoutes.js';
+app.use('/', presupuestoRoutes);
+
+import gastosRoutes from './routes/gastosRoutes.js';
+app.use('/', gastosRoutes);
+
+import ingresosRoutes from './routes/ingresosRoutes.js';
+app.use('/', ingresosRoutes);
+
+import passRoutes from './routes/passRoutes.js';
+app.use('/', passRoutes);
+
+// Ruta de prueba para verificar que funciona
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Frontend funcionando correctamente',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Iniciar servidor del frontend
 app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+    console.log(`🎨 Frontend corriendo en http://localhost:${port}`);
+    console.log(`✅ Health check: http://localhost:${port}/health`);
 });
