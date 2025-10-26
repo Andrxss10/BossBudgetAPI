@@ -1,128 +1,112 @@
-const express = require('express');
+// frontend/routes/otherRoutes.js
+import express from 'express';
+import { isAuthenticated, injectUserData } from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
-const db = require('../db'); // Si necesitas usar la base de datos
-const { isAuthenticated } = require('../middlewares/authMiddleware'); // Utilizamos el middleware de autenticación de sesiones
-const multer = require('multer'); // Manejo de imagenes en base de datos
 
-router.get('/principal', isAuthenticated, (req, res) => {
-    // 1. Primero verificar que el usuario existe
-    const verifyUserQuery = 'SELECT NombreUsuario FROM usuario WHERE Correo = ?';
-    
-    db.query(verifyUserQuery, [req.session.email], (err, userResults) => {
-        if (err) {
-            console.error('Error al verificar usuario:', err);
-            return res.status(500).send('Error al verificar usuario');
-        }
-
-        if (userResults.length === 0) {
-            console.error('Usuario no encontrado para el correo:', req.session.email);
-            return res.status(401).redirect('/logout'); // Forzar logout si el usuario no existe
-        }
-
-        const username = userResults[0].NombreUsuario;
-
-		const presupuestosQuery = `
-			SELECT 
-				p.idPresupuesto,
-				d.nombre,
-				d.fecha_inicio,
-				d.fecha_fin,
-				d.monto AS totalPresupuesto,
-				d.categoria,
-				COALESCE(SUM(g.Monto), 0) AS totalGastado
-			FROM presupuesto p
-			JOIN detallePresupuesto d ON p.idPresupuesto = d.idPresupuesto
-			LEFT JOIN gastos g ON g.idPresupuesto = p.idPresupuesto
-			WHERE p.NombreUsuario = ?
-			GROUP BY 
-				p.idPresupuesto,
-				d.nombre,
-				d.fecha_inicio,
-				d.fecha_fin,
-				d.monto,
-				d.categoria
-		`;
-
-
+// Todas estas rutas requieren autenticación
+router.get('/principal', isAuthenticated, injectUserData, async (req, res) => {
+    try {
+        // ✅ Datos del usuario ya vienen de injectUserData
+        // ❌ ELIMINADO: Consultas directas a BD
         
-        db.query(presupuestosQuery, [username], (err, presupuestos) => {
-            if (err) {
-                console.error('Error al obtener presupuestos:', err);
-                return res.status(500).render('error', {
-                    message: 'Error al cargar presupuestos',
-                    error: err
-                });
-            }
-
-            // Formatear fechas si es necesario
-            const presupuestosFormateados = Array.isArray(presupuestos) ? presupuestos.map(p => ({
-                ...p,
-                fecha_inicio: new Date(p.fecha_inicio).toLocaleDateString('es-CO'),
-                fecha_fin: new Date(p.fecha_fin).toLocaleDateString('es-CO')
-            })) : [];
-
-            res.render('principal', {
-                name: req.session.name,
-                foto: req.session.foto,
-                rol: req.session.rol,
-                presupuestos: presupuestosFormateados,
-                alertData: req.session.alertData || {}
-            });
-            
-            // Limpiar alertas después de mostrarlas
-            req.session.alertData = null;
+        // Los presupuestos ahora los obtendrá el JavaScript del frontend
+        // llamando a tu API del backend
+        
+        res.render('principal', {
+            title: 'Dashboard Principal',
+            user: res.locals.user,
+            // Los presupuestos se cargarán via JavaScript
+            presupuestos: [] // Vacío, se llenará con API call
         });
+        
+    } catch (error) {
+        console.error('Error en principal:', error);
+        res.redirect('/?alert=true&title=Error&message=Error al cargar el dashboard&icon=error');
+    }
+});
+
+router.get('/Reportes', isAuthenticated, injectUserData, (req, res) => {
+    const alertData = req.query.alert ? {
+        alert: true,
+        alertTitle: req.query.title || 'Info',
+        alertMessage: req.query.message || '',
+        alertIcon: req.query.icon || 'info',
+        showConfirmButton: true
+    } : {};
+    
+    res.render('Reportes', {
+        ...alertData,
+        title: 'Reportes',
+        user: res.locals.user
     });
 });
 
-
-// Página principal - aplicar el middleware de autenticación
-router.get('/Reportes', isAuthenticated, (req, res) => {
-    const alertData = req.session.alertData || {};
-    req.session.alertData = null;
-    res.render('Reportes', alertData);
+router.get('/registroCredito', isAuthenticated, injectUserData, (req, res) => {
+    const alertData = req.query.alert ? {
+        alert: true,
+        alertTitle: req.query.title || 'Info',
+        alertMessage: req.query.message || '',
+        alertIcon: req.query.icon || 'info',
+        showConfirmButton: true
+    } : {};
+    
+    res.render('registroCredito', {
+        ...alertData,
+        title: 'Registro de Créditos',
+        user: res.locals.user
+    });
 });
 
-// Página principal - aplicar el middleware de autenticación
-router.get('/registroCredito', isAuthenticated, (req, res) => {
-    const alertData = req.session.alertData || {};
-    req.session.alertData = null;
-    res.render('registroCredito', alertData);
+router.get('/TiposRecordatorios', isAuthenticated, injectUserData, (req, res) => {
+    const alertData = req.query.alert ? {
+        alert: true,
+        alertTitle: req.query.title || 'Info',
+        alertMessage: req.query.message || '',
+        alertIcon: req.query.icon || 'info',
+        showConfirmButton: true
+    } : {};
+    
+    res.render('TiposRecordatorios', {
+        ...alertData,
+        title: 'Tipos de Recordatorios',
+        user: res.locals.user
+    });
 });
 
-// Página principal - aplicar el middleware de autenticación
-router.get('/TiposRecordatorios', isAuthenticated, (req, res) => {
-    const alertData = req.session.alertData || {};
-    req.session.alertData = null;
-    res.render('TiposRecordatorios', alertData);
+router.get('/RecuperarContraseña', isAuthenticated, injectUserData, (req, res) => {
+    const alertData = req.query.alert ? {
+        alert: true,
+        alertTitle: req.query.title || 'Info',
+        alertMessage: req.query.message || '',
+        alertIcon: req.query.icon || 'info',
+        showConfirmButton: true
+    } : {};
+    
+    res.render('RecuperarContraseña', {
+        ...alertData,
+        title: 'Recuperar Contraseña',
+        user: res.locals.user
+    });
 });
 
-// Página principal - aplicar el middleware de autenticación
-router.get('/RecuperarContraseña', isAuthenticated, (req, res) => {
-    const alertData = req.session.alertData || {};
-    req.session.alertData = null;
-    res.render('RecuperarContraseña', alertData);
+router.get('/cuenta', isAuthenticated, injectUserData, (req, res) => {
+    const alertData = req.query.alert ? {
+        alert: true,
+        alertTitle: req.query.title || 'Info',
+        alertMessage: req.query.message || '',
+        alertIcon: req.query.icon || 'info',
+        showConfirmButton: true
+    } : {};
+    
+    res.render('cuenta', {
+        ...alertData,
+        title: 'Mi Cuenta',
+        user: res.locals.user,
+        // ✅ Los datos del usuario ya vienen de res.locals.user
+        // ❌ ELIMINADO: req.session.name, req.session.email, etc.
+        moneda: "USD" // Esto podría venir de una API también
+    });
 });
 
-router.get('/cuenta', isAuthenticated, (req, res) => {
-  const alertData = req.session.alertData || {};
-  req.session.alertData = null;
-  res.render('cuenta', {
-    ...alertData,
-    name: req.session.name,
-	lastName: req.session.lastName,
-	profesion: req.session.profesion,
-	expecs: req.session.expecs, // Extracción de datos de base de datos
-    email: req.session.email, // 👈 AGREGAR ESTA LÍNEA
-    rol: req.session.rol,
-	foto: req.session.foto,
-	username: req.session.username,
-	moneda: "USD" // REMPLAZAR AL CREAR CAMPO EN LA BASE DE DATOS
-	//presupuestos: req.session.idPresupuesto
-  });
-});
-
-
-
-
-module.exports = router;
+export default router;

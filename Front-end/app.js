@@ -26,12 +26,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 // ✅ MANTENER (pero transformadas) - Rutas de vistas
 // Importar rutas del frontend (las crearemos después)
-import creditosRoutes from './routes/creditos.js';
-app.use('/', creditosRoutes);
-
-import isoRoutes from './routes/isoRoutes.js';
-app.use('/', isoRoutes);
-
 import otherRoutes from './routes/otherRoutes.js';
 app.use('/', otherRoutes);
 
