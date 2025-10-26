@@ -3,12 +3,12 @@ const cors = require('cors');
 
 // ✅ IMPORTAR las rutas API que vamos a crear
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
+/*const userRoutes = require('./routes/users');
 const presupuestoRoutes = require('./routes/presupuesto');
 const creditosRoutes = require('./routes/creditos');
 const gastosRoutes = require('./routes/gastos');
 const ingresosRoutes = require('./routes/ingresos');
-
+*/
 const app = express();
 
 // Configuración de CORS
@@ -24,12 +24,12 @@ app.use('/uploads', express.static('uploads'));
 
 // ✅ AQUÍ SE CONECTAN LAS RUTAS API
 app.use('/api/auth', authRoutes);        // Ej: POST /api/auth/login
-app.use('/api/users', userRoutes);       // Ej: GET /api/users/profile
+/*app.use('/api/users', userRoutes);       // Ej: GET /api/users/profile
 app.use('/api/presupuesto', presupuestoRoutes);   // Ej: GET /api/budgets
 app.use('/api/creditos', creditosRoutes);   // Ej: GET /api/credits
 app.use('/api/gastos', gastosRoutes); // Ej: POST /api/expenses
 app.use('/api/ingresos', ingresosRoutes);   // Ej: POST /api/incomes
-
+*/
 // Health check
 app.get('/health', (req, res) => {
     res.json({ 
@@ -51,9 +51,9 @@ app.get('/', (req, res) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+/*app.all('*', (req, res) => {   // ← Usando app.all
     res.status(404).json({ error: 'Endpoint no encontrado' });
-});
+});*/
 
 // Error handler
 app.use((error, req, res, next) => {

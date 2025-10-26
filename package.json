@@ -10,7 +10,12 @@
     "setup:mysql": "./scripts/setup-codespace.sh",
     "setup:all": "npm run setup:mysql && npm run setup:db"
   },
-  "keywords": ["budget", "api", "nodejs", "mysql"],
+  "keywords": [
+    "budget",
+    "api",
+    "nodejs",
+    "mysql"
+  ],
   "author": "Tu Nombre",
   "license": "ISC",
   "dependencies": {
@@ -19,6 +24,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "mysql2": "^3.15.3"
   },
   "devDependencies": {

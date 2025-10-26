@@ -126,3 +126,14 @@ Ejecutar con:
 ```bash
 npm run setup:db
 ```
+
+## Consultar tablas en mysql
+
+```bash
+mysql -h 127.0.0.1 -u root -ppassword -e "SHOW DATABASES;"
+```
+
+## Verificar tablas de bossbudget
+```bash
+mysql -h 127.0.0.1 -u root -ppassword bossbudget -e "SHOW TABLES;"
+```
