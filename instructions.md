@@ -127,6 +127,16 @@ Ejecutar con:
 npm run setup:db
 ```
 
+## Verificar si esta corriendo mysql
+```bash
+sudo service mysql status
+```
+
+## Ejecutar mysql
+```bash
+sudo service mysql start
+```
+
 ## Consultar tablas en mysql
 
 ```bash
