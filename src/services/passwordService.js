@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
         user: process.env.EMAIL_USER || 'bossbudgetproyect@gmail.com',
