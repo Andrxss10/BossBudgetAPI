@@ -5,10 +5,10 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const presupuestosRoutes = require('./routes/presupuestos');
 const gastosRoutes = require('./routes/gastos');
-/*const userRoutes = require('./routes/users');
-const creditosRoutes = require('./routes/creditos');
 const ingresosRoutes = require('./routes/ingresos');
-*/
+const passwordRoutes = require('./routes/password');
+// const userRoutes = require('./routes/users');
+
 const app = express();
 
 // Configuración de CORS
@@ -24,12 +24,12 @@ app.use('/uploads', express.static('uploads'));
 
 // ✅ AQUÍ SE CONECTAN LAS RUTAS API
 app.use('/api/auth', authRoutes);        // Ej: POST /api/auth/login
-app.use('/api/presupuestos', presupuestosRoutes);   // Ej: GET /api/budgets
-app.use('/api/gastos', gastosRoutes); // Ej: POST /api/expenses
-/*app.use('/api/users', userRoutes);       // Ej: GET /api/users/profile
-app.use('/api/creditos', creditosRoutes);   // Ej: GET /api/credits
-app.use('/api/ingresos', ingresosRoutes);   // Ej: POST /api/incomes
-*/
+app.use('/api/presupuestos', presupuestosRoutes);   // Ej: GET /api/presupuestos
+app.use('/api/gastos', gastosRoutes); // Ej: POST /api/gastos
+app.use('/api/ingresos', ingresosRoutes);   // Ej: POST /api/ingresos
+app.use('/api/password', passwordRoutes);   // Ej: GET /api/password
+// app.use('/api/users', userRoutes);       // Ej: GET /api/users/profile
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({ 
