@@ -3,22 +3,19 @@ const router = express.Router();
 const presupuestoController = require('../controllers/presupuestoController');
 const authMiddleware = require('../middlewares/auth');
 
-// Todas las rutas requieren autenticación
-router.use(authMiddleware);
-
 // Crear presupuesto
-router.post('/', presupuestoController.crearPresupuesto);
+router.post('/', authMiddleware, presupuestoController.crearPresupuesto);
 
 // Obtener presupuestos del usuario
-router.get('/', presupuestoController.obtenerPresupuestosUsuario);
+router.get('/', authMiddleware, presupuestoController.obtenerPresupuestosUsuario);
 
 // Obtener presupuesto específico
-router.get('/:id', presupuestoController.obtenerPresupuesto);
+router.get('/:id', authMiddleware, presupuestoController.obtenerPresupuesto);
 
 // Actualizar presupuesto
-router.put('/:id', presupuestoController.actualizarPresupuesto);
+router.put('/:id', authMiddleware, presupuestoController.actualizarPresupuesto);
 
 // Eliminar presupuesto
-router.delete('/:id', presupuestoController.eliminarPresupuesto);
+router.delete('/:id', authMiddleware, presupuestoController.eliminarPresupuesto);
 
 module.exports = router;

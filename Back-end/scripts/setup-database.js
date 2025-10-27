@@ -256,6 +256,10 @@ async function setupDatabase() {
             (7, 'Turístico')
         `);
 
+        await connection.execute(`
+            INSERT IGNORE INTO usuario (NombreUsuario, Nombres, Apellidos, Contraseña, Correo, Profesion, rol) VALUES
+            ('testuser', 'Test', 'User', '$2b$10$hashedpassword', 'test@test.com', 'Tester', 'userN')`);
+
         console.log('✅ Todos los datos básicos insertados');
         console.log('🎉 Base de datos configurada exitosamente!');
         console.log('📋 Tablas creadas:');
