@@ -1,32 +1,59 @@
 // frontend/routes/otherRoutes.js
+// frontend/routes/otherRoutes.js
 import express from 'express';
-import { isAuthenticated, injectUserData } from '../middlewares/authMiddleware.js';
+import { protectView } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Todas estas rutas requieren autenticación
-router.get('/principal', isAuthenticated, injectUserData, async (req, res) => {
+// ✅ PROTEGER la ruta /principal
+// ✅ CORREGIDO: Agrega injectUserData y usa res.locals.user
+router.get('/principal', protectView, async (req, res) => {
     try {
-        // ✅ Datos del usuario ya vienen de injectUserData
-        // ❌ ELIMINADO: Consultas directas a BD
+        console.log('🏠 Accediendo a /principal');
         
-        // Los presupuestos ahora los obtendrá el JavaScript del frontend
-        // llamando a tu API del backend
+        // ✅ Verificar si hay usuario (ahora en res.locals.user)
+        if (!res.locals.user) {
+            console.log('🔴 No hay usuario, redirigiendo...');
+            return res.redirect('/login');
+        }
         
+        console.log('👤 Usuario:', res.locals.user);
+        
+        // ✅ Obtener datos adicionales si es necesario
+        const token = req.cookies.authToken;
+        let presupuestos = [];
+        
+        try {
+            const presupuestosResponse = await fetch('https://automatic-journey-5g5wgjj75gjq2p6pg-3000.app.github.dev/api/presupuestos', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (presupuestosResponse.ok) {
+                const result = await presupuestosResponse.json();
+                presupuestos = result.data || [];
+            }
+        } catch (error) {
+            console.log('⚠️ No se pudieron cargar presupuestos:', error.message);
+        }
+        
+        // ✅ Renderizar con datos CORRECTOS (res.locals.user)
         res.render('principal', {
-            title: 'Dashboard Principal',
-            user: res.locals.user,
-            // Los presupuestos se cargarán via JavaScript
-            presupuestos: [] // Vacío, se llenará con API call
+            user: res.locals.user, // ✅ CORREGIDO
+            name: res.locals.user.nombreUsuario || 'Usuario',
+            email: res.locals.user.email || 'usuario@ejemplo.com',
+            foto: res.locals.user.foto || null,
+            presupuestos: presupuestos
         });
         
     } catch (error) {
-        console.error('Error en principal:', error);
-        res.redirect('/?alert=true&title=Error&message=Error al cargar el dashboard&icon=error');
+        console.error('❌ Error en /principal:', error);
+        res.redirect('/login');
     }
 });
 
-router.get('/Reportes', isAuthenticated, injectUserData, (req, res) => {
+router.get('/Reportes', protectView, (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',
@@ -42,7 +69,7 @@ router.get('/Reportes', isAuthenticated, injectUserData, (req, res) => {
     });
 });
 
-router.get('/registroCredito', isAuthenticated, injectUserData, (req, res) => {
+router.get('/registroCredito', protectView, (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',
@@ -58,7 +85,7 @@ router.get('/registroCredito', isAuthenticated, injectUserData, (req, res) => {
     });
 });
 
-router.get('/TiposRecordatorios', isAuthenticated, injectUserData, (req, res) => {
+router.get('/TiposRecordatorios', protectView, (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',
@@ -74,7 +101,7 @@ router.get('/TiposRecordatorios', isAuthenticated, injectUserData, (req, res) =>
     });
 });
 
-router.get('/RecuperarContraseña', isAuthenticated, injectUserData, (req, res) => {
+router.get('/RecuperarContraseña', protectView, (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',
@@ -90,7 +117,7 @@ router.get('/RecuperarContraseña', isAuthenticated, injectUserData, (req, res) 
     });
 });
 
-router.get('/cuenta', isAuthenticated, injectUserData, (req, res) => {
+router.get('/cuenta', protectView, (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',

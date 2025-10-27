@@ -1,13 +1,13 @@
 // frontend/routes/presupuestoRoutes.js
 import express from 'express';
-import { isAuthenticated, injectUserData } from '../middlewares/authMiddleware.js';
+import { protectView } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // -------------------------- VISTAS (SOLO RENDER) --------------------------
 
 // Página para crear presupuesto
-router.get('/crearPresupuesto', isAuthenticated, injectUserData, (req, res) => {
+router.get('/crearPresupuesto', protectView, (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',
@@ -24,7 +24,7 @@ router.get('/crearPresupuesto', isAuthenticated, injectUserData, (req, res) => {
 });
 
 // Vista detallada del presupuesto
-router.get('/presupuesto/:id', isAuthenticated, injectUserData, (req, res) => {
+router.get('/presupuesto/:id', protectView, (req, res) => {
     const id = req.params.id;
     
     res.render('presupuesto', {

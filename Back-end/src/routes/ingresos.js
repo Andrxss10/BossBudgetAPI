@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ingresoController = require('../controllers/ingresoController');
-const authMiddleware = require('../middlewares/auth');
+const { authMiddleware } = require('../middlewares/auth');
 
 // Crear ingreso para un presupuesto específico
 router.post('/presupuesto/:idPresupuesto', authMiddleware, ingresoController.crearIngreso);

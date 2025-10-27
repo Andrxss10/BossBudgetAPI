@@ -1,13 +1,13 @@
 // frontend/routes/gastosRoutes.js
 import express from 'express';
-import { isAuthenticated, injectUserData } from '../middlewares/authMiddleware.js';
+import { protectView } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // -------------------------- VISTAS (SOLO RENDER) --------------------------
 
 // Mostrar formulario de registro de gastos
-router.get('/gastos/nuevo/:idPresupuesto', isAuthenticated, injectUserData, (req, res) => {
+router.get('/gastos/nuevo/:idPresupuesto', protectView, (req, res) => {
     res.render('registroGastos', {
         title: 'Registrar Gasto',
         user: res.locals.user,

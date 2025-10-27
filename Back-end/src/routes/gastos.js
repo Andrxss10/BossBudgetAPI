@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const gastoController = require('../controllers/gastoController');
-const authMiddleware = require('../middlewares/auth');
+const { authMiddleware } = require('../middlewares/auth');
 
 // Crear gasto para un presupuesto específico
 router.post('/presupuesto/:idPresupuesto', authMiddleware, gastoController.crearGasto);

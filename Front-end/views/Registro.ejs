@@ -419,14 +419,14 @@
 
   <!-- REEMPLAZA EL SCRIPT ACTUAL DEL FORMULARIO CON ESTE -->
 <script>
-  // Inicializar iconos Lucide
+   // Inicializar iconos Lucide
   lucide.createIcons();
 
   let currentImageStyle = 'cover';
 
-  // ✅ REEMPLAZAR: Interceptar el envío del formulario
+  // ✅ VERSIÓN CORREGIDA: Interceptar el envío del formulario
   document.getElementById('registroForm')?.addEventListener('submit', async function(e) {
-      e.preventDefault(); // 🔥 IMPORTANTE: Prevenir envío tradicional
+      e.preventDefault();
       
       const submitBtn = this.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerHTML;
@@ -434,7 +434,7 @@
       // Deshabilitar botón durante el envío
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i data-lucide="loader" class="h-5 w-5 mr-2 animate-spin"></i>Creando cuenta...';
-      lucide.createIcons(); // Re-crear iconos para el loader
+      lucide.createIcons();
 
       // Obtener datos del formulario
       const formData = new FormData();
@@ -455,11 +455,10 @@
       }
 
       try {
-          // ✅ LLAMADA DIRECTA A LA API (sin servicios)
           const response = await fetch('https://automatic-journey-5g5wgjj75gjq2p6pg-3000.app.github.dev/api/auth/registrar', {
               method: 'POST',
-              body: formData // 🔥 IMPORTANTE: No usar JSON porque es FormData con archivo
-              // No establecer Content-Type, el navegador lo hace automáticamente con boundary
+              body: formData,
+              credentials: 'include' // ✅ AGREGADO: Permite que el backend establezca cookies
           });
 
           const result = await response.json();
@@ -468,15 +467,15 @@
               throw new Error(result.error || 'Error en el registro');
           }
 
-          // ✅ REGISTRO EXITOSO
+          // ✅ REGISTRO EXITOSO (VERSIÓN CORREGIDA)
           if (result.success) {
-              // Si el backend devuelve token automáticamente después del registro
-              if (result.data && result.data.token) {
-                  localStorage.setItem('authToken', result.data.token);
-                  localStorage.setItem('userData', JSON.stringify(result.data.usuario));
-              }
+              console.log('✅ Registro exitoso');
               
-              // Mostrar mensaje de éxito
+              // ❌❌❌ NO CREAR COOKIES O TOKENS AQUÍ ❌❌❌
+              // El backend se encarga de establecer la cookie authToken automáticamente
+              // gracias a 'credentials: include'
+              
+              // ✅ Solo mostrar mensaje de éxito
               showAlert('¡Éxito!', 'Cuenta creada exitosamente', 'success');
               
               // Redirigir después de 2 segundos
@@ -498,7 +497,7 @@
       }
   });
 
-  // Función para mostrar alertas
+  // ... el resto del código permanece igual
   function showAlert(title, message, icon) {
       if (typeof Swal !== 'undefined') {
           Swal.fire({
@@ -508,7 +507,6 @@
               confirmButtonText: "Aceptar"
           });
       } else {
-          // Fallback con alert nativo
           alert(`${title}: ${message}`);
       }
   }

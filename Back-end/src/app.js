@@ -1,63 +1,61 @@
-// backend/src/app.js - REEMPLAZA con ESTE código
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser'); // ✅ AGREGAR ESTO
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
+const passwordRoutes = require('./routes/password');
 const presupuestosRoutes = require('./routes/presupuestos');
 const gastosRoutes = require('./routes/gastos');
 const ingresosRoutes = require('./routes/ingresos');
-const passwordRoutes = require('./routes/password');
 
 const app = express();
 
-// REEMPLAZA tu configuración CORS actual con ESTA:
+// ========== MIDDLEWARES GLOBALES ==========
+
+// 1. CORS PRIMERO
 app.use(cors({
-    origin: "*",
+    origin: 'https://automatic-journey-5g5wgjj75gjq2p6pg-3001.app.github.dev',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// EN backend/src/app.js - AGREGA esto ANTES de las rutas
-app.options('login', (req, res) => {
-    console.log('🎯 Preflight OPTIONS request recibida');
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    res.status(200).send();
-});
+// 2. ✅ COOKIE-PARSER - CRÍTICO para leer cookies
+app.use(cookieParser());
 
-// En backend/src/app.js, JUSTO DESPUÉS de app.use(cors(...))
+// 3. Logging de requests
 app.use((req, res, next) => {
-    console.log('🎯 CORS DEBUG - Headers que se enviarán:');
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    console.log('✅ Headers CORS configurados');
+    console.log('🔍 Request recibida en app.js:', req.method, req.url);
+    console.log('🌐 Origin:', req.headers.origin);
+    console.log('🍪 Cookies:', req.cookies); // ✅ Ahora podrás ver las cookies
     next();
 });
 
-// ✅ 3. Middlewares básicos
+// 4. Middlewares de parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ✅ 4. Servir archivos estáticos
+// 5. Archivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ✅ 5. Logging para debug
-app.use((req, res, next) => {
-    console.log(`📍 ${new Date().toISOString()} - ${req.method} ${req.url}`);
-    console.log(`🌐 Origin: ${req.headers.origin}`);
-    next();
-});
 
-// ✅ 6. Health check (sin CORS issues)
+// ========== RUTAS ==========
+
+// ✅ RUTAS PÚBLICAS PRIMERO
+app.use('/api/auth', authRoutes);
+app.use('/api/password', passwordRoutes);
+
+// ✅ RUTAS PROTEGIDAS DESPUÉS
+app.use('/api/presupuestos', presupuestosRoutes);
+app.use('/api/gastos', gastosRoutes);
+app.use('/api/ingresos', ingresosRoutes);
+
+// ========== RUTAS BÁSICAS ==========
+
+// Health check
 app.get('/health', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
     res.json({ 
         status: 'OK', 
         message: 'BossBudget API is running',
@@ -65,14 +63,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// ✅ 7. Rutas API
-app.use('/api/auth', authRoutes);
-app.use('/api/presupuestos', presupuestosRoutes);
-app.use('/api/gastos', gastosRoutes);
-app.use('/api/ingresos', ingresosRoutes);
-app.use('/api/password', passwordRoutes);
-
-// ✅ 8. Ruta de bienvenida
+// Ruta de bienvenida
 app.get('/', (req, res) => {
     res.json({
         message: 'Bienvenido a BossBudget API',
@@ -85,7 +76,9 @@ app.get('/', (req, res) => {
     });
 });
 
-// ✅ 9. Manejo de errores
+// ========== MANEJO DE ERRORES ==========
+
+// Error handler
 app.use((error, req, res, next) => {
     console.error('❌ Error:', error);
     res.status(500).json({ 
@@ -94,12 +87,12 @@ app.use((error, req, res, next) => {
     });
 });
 
-/*// ✅ 10. 404 handler
-app.use('*', (req, res) => {
+// 404 handler - SOLO para rutas no encontradas
+app.use((req, res) => {
     res.status(404).json({ 
         error: 'Endpoint no encontrado',
         path: req.originalUrl
     });
-});*/
+});
 
 module.exports = app;

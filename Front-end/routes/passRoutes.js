@@ -1,13 +1,12 @@
 // frontend/routes/passRoutes.js
 import express from 'express';
-import { redirectIfAuthenticated } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // -------------------------- VISTAS (SOLO RENDER) --------------------------
 
 // Vista de olvidé contraseña
-router.get('/forgot-password', redirectIfAuthenticated, (req, res) => {
+router.get('/forgot-password', (req, res) => {
     const alertData = req.query.alert ? {
         alert: true,
         alertTitle: req.query.title || 'Info',
@@ -25,7 +24,7 @@ router.get('/forgot-password', redirectIfAuthenticated, (req, res) => {
 });
 
 // Vista de resetear contraseña
-router.get('/reset-password', redirectIfAuthenticated, (req, res) => {
+router.get('/reset-password', (req, res) => {
     const { token } = req.query;
     
     const alertData = req.query.alert ? {
