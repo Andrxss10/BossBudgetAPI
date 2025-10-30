@@ -7,8 +7,8 @@ const crypto = require('crypto');
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: process.env.EMAIL_USER || 'bossbudgetproyect@gmail.com',
-        pass: process.env.EMAIL_PASS || 'ipobxfavjakwqyge',
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     },
 });
 
@@ -21,15 +21,11 @@ class PasswordService {
         }
 
         const token = crypto.randomBytes(32).toString('hex');
-        const expiresAt = new Date(Date.now() + 3600000); // 1 hora
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
-        // Guardar token en la BD
-        await passwordResetTokenRepository.create(
-            usuario.NombreUsuario, 
-            token, 
-            expiresAt
-        );
+        await passwordResetTokenRepository.create(usuario.Correo, token, expiresAt);
 
+        // Enlace directo al frontend con el token
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         
         try {
@@ -37,13 +33,29 @@ class PasswordService {
                 to: correo,
                 subject: 'Recuperación de contraseña - BossBudget',
                 html: `
-                    <h2>Recuperación de Contraseña</h2>
-                    <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-                    <a href="${resetLink}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                        Restablecer Contraseña
-                    </a>
-                    <p>El enlace expira en 1 hora.</p>
-                    <p>Si no solicitaste este cambio, ignora este mensaje.</p>
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #2563eb; text-align: center;">Recuperación de Contraseña</h2>
+                        
+                        <p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>
+                        
+                        <div style="text-align: center; margin: 25px 0;">
+                            <a href="${resetLink}" 
+                            style="background-color: #2563eb; color: white; padding: 12px 24px; 
+                                    text-decoration: none; border-radius: 6px; border: none; 
+                                    cursor: pointer; font-size: 16px; display: inline-block;">
+                                Restablecer Contraseña
+                            </a>
+                        </div>
+                        
+                        <p><strong>El enlace expira en 15 minutos.</strong></p>
+                        
+                        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                            <p style="margin: 0; font-size: 14px; color: #6b7280;">
+                                <strong>Nota de seguridad:</strong> Este enlace caduca en 15 minutos 
+                                y es de un solo uso. Si no lo solicitaste, ignora este mensaje.
+                            </p>
+                        </div>
+                    </div>
                 `,
             });
         } catch (error) {
@@ -54,7 +66,7 @@ class PasswordService {
         return { 
             message: '¡Revisa tu correo para el enlace de recuperación!'
         };
-    }
+    }   
 
     async restablecerContraseña(token, nuevaContraseña) {
         if (!nuevaContraseña || nuevaContraseña.length < 6) {
@@ -70,9 +82,9 @@ class PasswordService {
         // Hashear nueva contraseña
         const contraseñaHasheada = await bcrypt.hash(nuevaContraseña, 10);
 
-        // Actualizar contraseña del usuario
+        // Actualizar por CORREO en lugar de NombreUsuario
         const actualizado = await usuarioRepository.updatePassword(
-            tokenData.nombreUsuario, 
+            tokenData.correo,
             contraseñaHasheada
         );
 
@@ -90,7 +102,8 @@ class PasswordService {
         const tokenData = await passwordResetTokenRepository.findValidToken(token);
         return {
             valido: !!tokenData,
-            nombreUsuario: tokenData?.nombreUsuario
+            // Si necesitas el correo para algo en el frontend, puedes retornarlo:
+            correo: tokenData?.correo
         };
     }
 }

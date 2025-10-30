@@ -1,15 +1,15 @@
 class Telefono {
-    constructor(idTelefono, Numero, NombreUsuario) {
+    constructor(idTelefono, Numero, Correo) {
         this.idTelefono = idTelefono;
         this.Numero = Numero;
-        this.NombreUsuario = NombreUsuario;
+        this.Correo = Correo;
     }
 
     toJSON() {
         return {
             idTelefono: this.idTelefono,
             Numero: this.Numero,
-            NombreUsuario: this.NombreUsuario
+            Correo: this.Correo
         };
     }
 }

@@ -40,17 +40,17 @@ class PasswordController {
         }
     }
 
-    // Verificar token (opcional)
+    // Verificar token
     async verificarToken(req, res) {
         try {
             const { token } = req.params;
             
-            // En producción, verificarías en la BD
-            const valido = token && token.length === 64; // Simulación
+            const resultado = await passwordService.verificarToken(token);
             
             res.json({
                 success: true,
-                valido: valido
+                valido: resultado.valido,
+                correo: resultado.correo // Opcional: si quieres retornar el correo
             });
         } catch (error) {
             res.status(400).json({

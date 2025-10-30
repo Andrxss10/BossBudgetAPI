@@ -16,7 +16,7 @@ const app = express();
 
 // 1. CORS PRIMERO
 app.use(cors({
-    origin: 'https://automatic-journey-5g5wgjj75gjq2p6pg-3001.app.github.dev',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -40,6 +40,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // 5. Archivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// 6. Etapa del desarrollo
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', true); // Confía en todos los proxies en producción
+}
 
 // ========== RUTAS ==========
 

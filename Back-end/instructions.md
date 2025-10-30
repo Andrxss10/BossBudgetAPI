@@ -30,7 +30,7 @@ npm init -y
 
 ```bash
 # Dependencias principales
-npm install express mysql2 bcryptjs jsonwebtoken cors dotenv
+npm install express mysql2 bcryptjs jsonwebtoken cors dotenv express-rate-limit fetch crypto nodemailer axios cookie-parser
 ```
 ```bash
 # Dependencias de desarrollo

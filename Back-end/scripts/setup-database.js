@@ -52,17 +52,22 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
         
+        await connection.execute(`
+            DROP TABLE IF EXISTS password_reset_tokens;
+            `);
+
         // Tabla password_reset_tokens
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS password_reset_tokens (
                 id INT NOT NULL AUTO_INCREMENT,
-                NombreUsuario VARCHAR(50) NOT NULL,
+                Correo VARCHAR(120) NOT NULL,
                 token VARCHAR(255) NOT NULL,
                 expires_at DATETIME NOT NULL,
                 PRIMARY KEY (id),
-                KEY NombreUsuario (NombreUsuario),
-                CONSTRAINT password_reset_tokens_ibfk_1 FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario) ON DELETE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+                KEY Correo (Correo),
+                CONSTRAINT password_reset_tokens_ibfk_1 FOREIGN KEY (Correo) REFERENCES usuario (Correo) ON DELETE CASCADE,
+                UNIQUE KEY token_unique (token)
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
 
@@ -147,10 +152,10 @@ async function setupDatabase() {
             CREATE TABLE IF NOT EXISTS telefonos (
                 idTelefono INT NOT NULL,
                 Numero VARCHAR(15) DEFAULT NULL,
-                NombreUsuario VARCHAR(50) NOT NULL,
+                Correo VARCHAR(120) NOT NULL,
                 PRIMARY KEY (idTelefono),
-                KEY NombreUsuario (NombreUsuario),
-                CONSTRAINT telefonos_ibfk_1 FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario)
+                KEY Correo (Correo),
+                CONSTRAINT telefonos_ibfk_1 FOREIGN KEY (Correo) REFERENCES usuario (Correo)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 

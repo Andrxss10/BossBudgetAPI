@@ -80,6 +80,15 @@ class UsuarioRepository {
             usuario.rol
         );
     }
+
+    async updatePassword(correo, nuevaContraseña) {
+        const [result] = await db.execute(
+            'UPDATE usuario SET Contraseña = ? WHERE Correo = ?',
+            [nuevaContraseña, correo]
+        );
+        
+        return result.affectedRows > 0;
+    }
 }
 
 module.exports = new UsuarioRepository();
