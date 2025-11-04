@@ -7,21 +7,39 @@ const tokenBlacklist = new Map();
 
 /**
  * Middleware para verificar y validar el JWT
+ * Busca token en: 1. Headers Authorization, 2. Cookies
  */
 const authMiddleware = (req, res, next) => {
   try {
-    const authHeader = req.header('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token = null;
+
+    // 🍪 1. PRIMERO buscar en cookies (para el frontend web)
+    if (req.cookies && req.cookies.authToken) {
+      token = req.cookies.authToken;
+      console.log('🔐 Token encontrado en cookies');
+    }
+    
+    // 🔑 2. SEGUNDO buscar en headers Authorization (para APIs/móvil)
+    if (!token) {
+      const authHeader = req.header('Authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.replace('Bearer ', '');
+        console.log('🔐 Token encontrado en headers');
+      }
+    }
+
+    // ❌ Si no hay token en ningún lado
+    if (!token) {
+      console.log('❌ No se encontró token en cookies ni headers');
       return res.status(401).json({
         success: false,
         error: 'Token de acceso requerido'
       });
     }
 
-    const token = authHeader.replace('Bearer ', '');
-
     // 🧱 1. Verificar si el token está en la lista negra
     if (tokenBlacklist.has(token)) {
+      console.log('❌ Token en lista negra');
       return res.status(401).json({
         success: false,
         error: 'Token revocado. Inicie sesión nuevamente.'
@@ -30,6 +48,7 @@ const authMiddleware = (req, res, next) => {
 
     // 🧱 2. Verificar firma y expiración
     const decoded = jwt.verify(token, JWT_SECRET);
+    console.log('✅ Token válido para usuario:', decoded.correo);
 
     // 🧱 3. Adjuntar datos del usuario a la request
     req.user = decoded;
@@ -37,19 +56,30 @@ const authMiddleware = (req, res, next) => {
 
   } catch (error) {
     console.error('❌ Error en authMiddleware:', error.message);
-    res.status(401).json({
-      success: false,
-      error: 'Token inválido o expirado'
-    });
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        error: 'Token expirado'
+      });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        error: 'Token inválido'
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        error: 'Error de autenticación'
+      });
+    }
   }
 };
 
 /**
  * Agrega un token a la blacklist (por ejemplo, al hacer logout)
- * Guarda su expiración para borrarlo automáticamente cuando ya no sea necesario.
  */
-// back-end/src/middlewares/auth.js - Mejora la función
-const revokeToken = async (token) => { // ✅ Hacerla async
+const revokeToken = async (token) => {
   try {
     const decoded = jwt.decode(token);
     if (!decoded || !decoded.exp) {
@@ -71,7 +101,7 @@ const revokeToken = async (token) => { // ✅ Hacerla async
     
   } catch (err) {
     console.error('❌ Error al revocar token:', err.message);
-    throw err; // ✅ Propagar el error
+    throw err;
   }
 };
 
